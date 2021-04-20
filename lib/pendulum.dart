@@ -20,13 +20,12 @@ class Pendulum {
       Vector(length * cos(angle), -length * sin(angle)) * angle_;
 
   Offset offset() => position().off();
+  double angDegree() => angle * 180 / pi;
+  double velDegree() => angle_ * 180 / pi;
 
   void update(double acceleration) {
     angle__ = acceleration;
     angle_ += angle__;
     angle += angle_;
   }
-
-  @override
-  String toString() => "(" + length.toString() + ", " + angle.toString() + ")";
 }

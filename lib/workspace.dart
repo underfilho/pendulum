@@ -5,14 +5,16 @@ import 'package:pendulum/vector.dart';
 class Workspace extends StatelessWidget {
   final List<Pendulum> pendulums;
   final bool velocity;
+  final int selected;
   final Vector center;
 
-  Workspace(this.pendulums, this.center, {this.velocity = false});
+  Workspace(this.pendulums, this.center, this.selected,
+      {this.velocity = false});
 
   @override
   Widget build(BuildContext context) {
     return CustomPaint(
-      painter: WorkspacePainter(pendulums, center, velocity),
+      painter: WorkspacePainter(pendulums, center, selected, velocity),
       child: Container(
         width: double.infinity,
         height: double.infinity,
@@ -24,9 +26,10 @@ class Workspace extends StatelessWidget {
 class WorkspacePainter extends CustomPainter {
   final List<Pendulum> pendulums;
   final bool velocity;
+  final int id;
   final Vector center;
 
-  WorkspacePainter(this.pendulums, this.center, this.velocity);
+  WorkspacePainter(this.pendulums, this.center, this.id, this.velocity);
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -34,6 +37,9 @@ class WorkspacePainter extends CustomPainter {
     Paint pencil = Paint()
       ..style = PaintingStyle.fill
       ..color = Colors.black;
+    Paint selected = Paint()
+      ..style = PaintingStyle.fill
+      ..color = Colors.green;
     Paint base = Paint()
       ..style = PaintingStyle.fill
       ..strokeWidth = 4
@@ -44,13 +50,16 @@ class WorkspacePainter extends CustomPainter {
 
     canvas.drawLine(Offset(-15, 0), Offset(15, 0), base);
 
-    for (var pendulum in pendulums) {
-      if (pendulum != null) {
-        canvas.drawLine(Vector(0, 0).off(), pendulum.offset(), pencil);
-        canvas.drawCircle(pendulum.offset(), 8, pencil);
+    int length = pendulums.length;
+    for (int i = 0; i < length; i++) {
+      if (pendulums[i] != null) {
+        canvas.drawLine(Vector(0, 0).off(), pendulums[i].offset(), pencil);
+        canvas.drawCircle(
+            pendulums[i].offset(), 8, (i != id) ? pencil : selected);
         if (velocity) {
-          Vector velocity = pendulum.position() + pendulum.velocity() * 3;
-          canvas.drawLine(pendulum.offset(), velocity.off(), redpen);
+          Vector velocity =
+              pendulums[i].position() + pendulums[i].velocity() * 3;
+          canvas.drawLine(pendulums[i].offset(), velocity.off(), redpen);
         }
       }
     }

@@ -20,5 +20,6 @@ class Vector {
   Vector operator -(Vector other) => Vector(x, y) + other * (-1);
 
   @override
-  String toString() => '(' + x.toString() + ', ' + y.toString() + ')';
+  String toString() =>
+      '(' + x.toStringAsFixed(1) + ', ' + y.toStringAsFixed(1) + ')';
 }

@@ -13,23 +13,29 @@ class MyApp extends StatefulWidget {
   _MyAppState createState() => _MyAppState();
 }
 
-class _MyAppState extends State<MyApp> {
+class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
+  AnimationController controller;
+  Animation<double> curve;
   List<Pendulum> pendulums = [];
   Vector center = Vector(0, 0);
   bool velocity = false;
   bool play = true;
   Pendulum temp;
+  int selected = -1;
 
   @override
   void initState() {
     super.initState();
+    controller =
+        AnimationController(vsync: this, duration: Duration(milliseconds: 300));
+    curve = CurvedAnimation(parent: controller, curve: Curves.easeInOut);
     timer();
   }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Pêndulo',
       debugShowCheckedModeBanner: false,
       home: MaterialApp(
         home: Scaffold(
@@ -53,10 +59,21 @@ class _MyAppState extends State<MyApp> {
                         pendulums.add(temp);
                         temp = null;
                       }),
-                      child: Workspace(pendulums + [temp], center,
+                      child: Workspace(pendulums + [temp], center, selected,
                           velocity: velocity),
                     );
                   },
+                ),
+                Positioned(
+                  right: 10,
+                  top: 20,
+                  child: InkWell(
+                    onTap: () => controller.forward(),
+                    child: Container(
+                      padding: EdgeInsets.all(10),
+                      child: Icon(Icons.menu),
+                    ),
+                  ),
                 ),
                 Positioned(
                   left: 10,
@@ -103,10 +120,121 @@ class _MyAppState extends State<MyApp> {
                     ),
                   ),
                 ),
+                Builder(builder: (_) {
+                  double width = MediaQuery.of(_).size.width;
+
+                  return Transform.translate(
+                    offset: Offset(width - curve.value * width * 0.45, 0),
+                    child: Container(
+                      width: width * 0.45,
+                      color: Colors.blue.withOpacity(0.9),
+                      child: Column(
+                        children: <Widget>[
+                          SizedBox(height: 10),
+                          Container(
+                            width: double.infinity,
+                            alignment: Alignment.centerLeft,
+                            child: InkWell(
+                              onTap: () async {
+                                await controller.reverse();
+                                selected = -1;
+                              },
+                              child: Container(
+                                padding: EdgeInsets.all(10),
+                                child: Icon(Icons.chevron_left),
+                              ),
+                            ),
+                          ),
+                          Container(
+                            child: Text("Pêndulos",
+                                style: TextStyle(
+                                    fontSize: 24, fontWeight: FontWeight.w500)),
+                          ),
+                          SizedBox(height: 10),
+                          ListView.builder(
+                            shrinkWrap: true,
+                            itemCount: pendulums.length,
+                            itemBuilder: (_, id) {
+                              return (id == selected)
+                                  ? pendulumInfo(id)
+                                  : pendulumOption(id);
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }),
               ],
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget pendulumOption(int id) {
+    return Container(
+      margin: EdgeInsets.only(left: 20, top: 5),
+      child: Row(
+        children: <Widget>[
+          Text("Pêndulo ${id + 1}",
+              style: TextStyle(fontWeight: FontWeight.w500)),
+          Spacer(),
+          InkWell(
+            onTap: () => setState(() => selected = id),
+            child: Padding(
+              padding: EdgeInsets.all(8),
+              child: Icon(Icons.keyboard_arrow_down, size: 20),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget pendulumInfo(int id) {
+    Pendulum pendulum = pendulums[id];
+
+    return Container(
+      margin: EdgeInsets.only(left: 20, top: 5),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Row(
+            children: <Widget>[
+              Text("Pêndulo ${id + 1}",
+                  style: TextStyle(fontWeight: FontWeight.w500)),
+              Spacer(),
+              InkWell(
+                onTap: () => setState(() => selected = -1),
+                child: Padding(
+                  padding: EdgeInsets.all(8),
+                  child: Icon(Icons.keyboard_arrow_up, size: 20),
+                ),
+              ),
+            ],
+          ),
+          Text("Posição: ${pendulum.position()}"),
+          Text("Ângulo: ${pendulum.angDegree().toStringAsFixed(0)}º"),
+          Text("Velocidade: ${pendulum.velocity()}"),
+          Text(
+              "Velocidade angular: ${pendulum.velDegree().toStringAsFixed(0)}º/s"),
+          SizedBox(height: 10),
+          InkWell(
+            onTap: () => setState(() {
+              pendulums.removeAt(id);
+              selected = -1;
+            }),
+            child: Row(
+              children: <Widget>[
+                Icon(Icons.delete, size: 18),
+                SizedBox(width: 2),
+                Text("Apagar"),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
