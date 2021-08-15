@@ -1,6 +1,6 @@
 # Simulação de Pêndulos Simples
 
-[Download](https://github.com/underfilho/pendulum_mobile/raw/main/app-release.apk)
+[Download app Android](https://github.com/underfilho/pendulum_mobile/raw/main/app-release.apk)
 
 Uma simulação do [Pêndulo Simples](https://en.wikipedia.org/wiki/Pendulum_(mathematics)) criada em Flutter, nele o usuário pode clicar e arrastar para criar pêndulos, além de ver informações sobre cada pêndulo. 
 
