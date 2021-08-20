@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:pendulum/vector.dart';
-import 'package:pendulum/pendulum.dart';
+import 'package:pendulum/models/models.dart';
 import 'package:pendulum/workspace.dart';
 import 'dart:math';
 
