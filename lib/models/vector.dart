@@ -19,7 +19,9 @@ class Vector {
   Offset off() => Offset(x, y);
 
   Vector operator +(Vector other) => Vector(other.x + x, other.y + y);
+
   Vector operator *(double scale) => Vector(x * scale, y * scale);
+
   Vector operator -(Vector other) => Vector(x, y) + other * (-1);
 
   @override
