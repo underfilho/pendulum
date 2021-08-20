@@ -5,8 +5,8 @@ import 'dart:math';
 class Pendulum {
   double length = 0;
   double angle = 0;
-  double angularVelocity = 0; //angular velocity
-  double angularAcceleration = 0; //angular acceleration
+  double angularVelocity = 0;
+  double angularAcceleration = 0;
 
   Pendulum(this.length, this.angle);
 
