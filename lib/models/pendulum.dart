@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:pendulum/vector.dart';
+import 'package:pendulum/models/vector.dart';
 import 'dart:math';
 
 class Pendulum {
