@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:pendulum/components/energy_indicator.dart';
 import 'package:pendulum/models/models.dart';
 import 'package:pendulum/workspace.dart';
 import 'dart:math';
+
+const ms = 33;
+const G = 10;
+const scale = 100.0;
 
 void main() {
   runApp(MyApp());
@@ -21,6 +26,7 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
   bool play = true;
   Pendulum temp;
   int selected = -1;
+  double dt = ms / 1000;
 
   @override
   void initState() {
@@ -29,6 +35,9 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
         AnimationController(vsync: this, duration: Duration(milliseconds: 300));
     curve = CurvedAnimation(parent: controller, curve: Curves.easeInOut);
     timer();
+
+    final pendulum = Pendulum(1, pi / 4);
+    pendulums.add(pendulum);
   }
 
   @override
@@ -220,6 +229,14 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
           Text(
               "Velocidade angular: ${pendulum.velDegree().toStringAsFixed(0)}º/s"),
           SizedBox(height: 10),
+          Text("Energia potencial e cinética:"),
+          Padding(
+            padding: const EdgeInsets.only(right: 20, top: 5, bottom: 10),
+            child: EnergyIndicator(
+              leftValue: pendulum.potentialEnergy(),
+              rightValue: pendulum.kineticEnergy(),
+            ),
+          ),
           InkWell(
             onTap: () => setState(() {
               pendulums.removeAt(id);
@@ -241,10 +258,10 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
   Vector coord(Offset position) => Vector(position.dx, position.dy) - center;
 
   void timer() {
-    Future.delayed(Duration(milliseconds: 20)).then((_) {
+    Future.delayed(Duration(milliseconds: ms)).then((_) {
       setState(() {
         for (var pendulum in pendulums)
-          pendulum.update(-1 * sin(pendulum.angle) / pendulum.length);
+          pendulum.update(() => -G * sin(pendulum.angle) / pendulum.length, dt);
       });
 
       if (play) timer();
