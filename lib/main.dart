@@ -22,11 +22,11 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
   Animation<double> curve;
   List<Pendulum> pendulums = [];
   Vector center = Vector(0, 0);
-  bool velocity = false;
   bool play = true;
   Pendulum temp;
   int selected = -1;
   double dt = ms / 1000;
+  double drag = 0;
 
   @override
   void initState() {
@@ -35,9 +35,6 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
         AnimationController(vsync: this, duration: Duration(milliseconds: 300));
     curve = CurvedAnimation(parent: controller, curve: Curves.easeInOut);
     timer();
-
-    final pendulum = Pendulum(1, pi / 4);
-    pendulums.add(pendulum);
   }
 
   @override
@@ -67,8 +64,7 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
                         pendulums.add(temp);
                         temp = null;
                       }),
-                      child: Workspace(pendulums + [temp], center, selected,
-                          velocity: velocity),
+                      child: Workspace(pendulums + [temp], center, selected),
                     );
                   },
                 ),
@@ -88,12 +84,8 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
                   top: 20,
                   child: InkWell(
                     onTap: () {
-                      if (play)
-                        play = false;
-                      else {
-                        play = true;
-                        timer();
-                      }
+                      play = !play;
+                      if (play) timer();
                     },
                     child: Container(
                       padding: EdgeInsets.all(10),
@@ -117,13 +109,13 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
                   left: 20,
                   bottom: 30,
                   child: InkWell(
-                    onTap: () => velocity = !velocity,
+                    onTap: toogleAirResistance,
                     child: Container(
                       padding: EdgeInsets.all(10),
                       child: Text(
-                          !velocity
-                              ? "Mostrar velocidades"
-                              : "Ocultar velocidades",
+                          !airResistance
+                              ? "Ativar resistência do ar"
+                              : "Ignorar resistência do ar",
                           style: TextStyle(fontSize: 16)),
                     ),
                   ),
@@ -257,14 +249,23 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
 
   Vector coord(Offset position) => Vector(position.dx, position.dy) - center;
 
+  bool get airResistance => drag != 0;
+
+  void toogleAirResistance() => drag = airResistance ? 0 : 0.3;
+
   void timer() {
     Future.delayed(Duration(milliseconds: ms)).then((_) {
       setState(() {
         for (var pendulum in pendulums)
-          pendulum.update(() => -G * sin(pendulum.angle) / pendulum.length, dt);
+          pendulum.update(() => motionEquation(pendulum), dt);
       });
 
       if (play) timer();
     });
+  }
+
+  double motionEquation(Pendulum pendulum) {
+    return -G * sin(pendulum.angle) / pendulum.length -
+        drag * pendulum.angularVelocity;
   }
 }

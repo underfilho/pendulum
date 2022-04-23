@@ -4,11 +4,10 @@ import 'package:pendulum/models/models.dart';
 
 class WorkspacePainter extends CustomPainter {
   final List<Pendulum> pendulums;
-  final bool velocity;
   final int id;
   final Vector center;
 
-  WorkspacePainter(this.pendulums, this.center, this.id, this.velocity);
+  WorkspacePainter(this.pendulums, this.center, this.id);
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -24,9 +23,6 @@ class WorkspacePainter extends CustomPainter {
       ..style = PaintingStyle.fill
       ..strokeWidth = 10 / scale
       ..color = Colors.black;
-    Paint redpen = Paint()
-      ..style = PaintingStyle.fill
-      ..color = Colors.red;
 
     canvas.drawLine(Offset(-30 / scale, 0), Offset(30 / scale, 0), base);
 
@@ -36,11 +32,6 @@ class WorkspacePainter extends CustomPainter {
         canvas.drawLine(Vector(0, 0).off(), pendulums[i].offset(), pencil);
         canvas.drawCircle(
             pendulums[i].offset(), 10 / scale, (i != id) ? pencil : selected);
-        if (velocity) {
-          Vector velocity =
-              pendulums[i].position() + pendulums[i].velocity() * 3;
-          canvas.drawLine(pendulums[i].offset(), velocity.off(), redpen);
-        }
       }
     }
   }

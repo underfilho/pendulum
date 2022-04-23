@@ -19,22 +19,36 @@ class EnergyIndicator extends StatefulWidget {
 }
 
 class _EnergyIndicatorState extends State<EnergyIndicator> {
+  String get totalEnergy =>
+      (widget.leftValue + widget.rightValue).toStringAsFixed(1);
+
   @override
   Widget build(BuildContext context) {
     return Container(
       height: 10,
       child: LayoutBuilder(builder: (context, constraints) {
-        return Row(
+        return Stack(
           children: [
-            Container(
-              width:
-                  calculatePercentage(widget.leftValue) * constraints.maxWidth,
-              color: widget.leftColor,
+            Row(
+              children: [
+                Container(
+                  width: calculatePercentage(widget.leftValue) *
+                      constraints.maxWidth,
+                  color: widget.leftColor,
+                ),
+                Container(
+                  width: calculatePercentage(widget.rightValue) *
+                      constraints.maxWidth,
+                  color: widget.rightColor,
+                ),
+              ],
             ),
-            Container(
-              width:
-                  calculatePercentage(widget.rightValue) * constraints.maxWidth,
-              color: widget.rightColor,
+            Align(
+              alignment: Alignment.center,
+              child: Text(
+                totalEnergy,
+                style: TextStyle(color: Colors.white, fontSize: 10),
+              ),
             ),
           ],
         );
