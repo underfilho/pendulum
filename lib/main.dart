@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:pendulum/components/energy_indicator.dart';
+import 'package:pendulum/components/lateral_menu.dart';
 import 'package:pendulum/models/models.dart';
-import 'package:pendulum/workspace.dart';
-import 'dart:math';
+import 'package:pendulum/components/workspace.dart';
 
 const ms = 33;
 const G = 10;
@@ -125,43 +124,13 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
 
                   return Transform.translate(
                     offset: Offset(width - curve.value * width * 0.45, 0),
-                    child: Container(
-                      width: width * 0.45,
-                      color: Colors.blue.withOpacity(0.9),
-                      child: Column(
-                        children: <Widget>[
-                          SizedBox(height: 10),
-                          Container(
-                            width: double.infinity,
-                            alignment: Alignment.centerLeft,
-                            child: InkWell(
-                              onTap: () async {
-                                await controller.reverse();
-                                selected = -1;
-                              },
-                              child: Container(
-                                padding: EdgeInsets.all(10),
-                                child: Icon(Icons.chevron_left),
-                              ),
-                            ),
-                          ),
-                          Container(
-                            child: Text("Pêndulos",
-                                style: TextStyle(
-                                    fontSize: 24, fontWeight: FontWeight.w500)),
-                          ),
-                          SizedBox(height: 10),
-                          ListView.builder(
-                            shrinkWrap: true,
-                            itemCount: pendulums.length,
-                            itemBuilder: (_, id) {
-                              return (id == selected)
-                                  ? pendulumInfo(id)
-                                  : pendulumOption(id);
-                            },
-                          ),
-                        ],
-                      ),
+                    child: LateralMenu(
+                      pendulums: pendulums,
+                      onSelected: (id) => setState(() => selected = id),
+                      onTap: () async {
+                        await controller.reverse();
+                        selected = -1;
+                      },
                     ),
                   );
                 }),
@@ -169,80 +138,6 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
             ),
           ),
         ),
-      ),
-    );
-  }
-
-  Widget pendulumOption(int id) {
-    return Container(
-      margin: EdgeInsets.only(left: 20, top: 5),
-      child: Row(
-        children: <Widget>[
-          Text("Pêndulo ${id + 1}",
-              style: TextStyle(fontWeight: FontWeight.w500)),
-          Spacer(),
-          InkWell(
-            onTap: () => setState(() => selected = id),
-            child: Padding(
-              padding: EdgeInsets.all(8),
-              child: Icon(Icons.keyboard_arrow_down, size: 20),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget pendulumInfo(int id) {
-    Pendulum pendulum = pendulums[id];
-
-    return Container(
-      margin: EdgeInsets.only(left: 20, top: 5),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Row(
-            children: <Widget>[
-              Text("Pêndulo ${id + 1}",
-                  style: TextStyle(fontWeight: FontWeight.w500)),
-              Spacer(),
-              InkWell(
-                onTap: () => setState(() => selected = -1),
-                child: Padding(
-                  padding: EdgeInsets.all(8),
-                  child: Icon(Icons.keyboard_arrow_up, size: 20),
-                ),
-              ),
-            ],
-          ),
-          Text("Posição: ${pendulum.position()}"),
-          Text("Ângulo: ${pendulum.angDegree().toStringAsFixed(0)}º"),
-          Text("Velocidade: ${pendulum.velocity()}"),
-          Text(
-              "Velocidade angular: ${pendulum.velDegree().toStringAsFixed(0)}º/s"),
-          SizedBox(height: 10),
-          Text("Energia potencial e cinética:"),
-          Padding(
-            padding: const EdgeInsets.only(right: 20, top: 5, bottom: 10),
-            child: EnergyIndicator(
-              leftValue: pendulum.potentialEnergy(),
-              rightValue: pendulum.kineticEnergy(),
-            ),
-          ),
-          InkWell(
-            onTap: () => setState(() {
-              pendulums.removeAt(id);
-              selected = -1;
-            }),
-            child: Row(
-              children: <Widget>[
-                Icon(Icons.delete, size: 18),
-                SizedBox(width: 2),
-                Text("Apagar"),
-              ],
-            ),
-          ),
-        ],
       ),
     );
   }
@@ -256,16 +151,10 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
   void timer() {
     Future.delayed(Duration(milliseconds: ms)).then((_) {
       setState(() {
-        for (var pendulum in pendulums)
-          pendulum.update(() => motionEquation(pendulum), dt);
+        for (var pendulum in pendulums) pendulum.update(drag, dt);
       });
 
       if (play) timer();
     });
-  }
-
-  double motionEquation(Pendulum pendulum) {
-    return -G * sin(pendulum.angle) / pendulum.length -
-        drag * pendulum.angularVelocity;
   }
 }

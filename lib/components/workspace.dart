@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pendulum/models/models.dart';
-import 'package:pendulum/workspace_painter.dart';
+import 'package:pendulum/components/workspace_painter.dart';
 
 class Workspace extends StatelessWidget {
   final List<Pendulum> pendulums;

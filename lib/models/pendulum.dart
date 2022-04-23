@@ -33,11 +33,14 @@ class Pendulum {
 
   double totalEnergy() => kineticEnergy() + potentialEnergy();
 
-  // Actually using Verlet integration method
-  void update(double Function() newAcceleration, double dt) {
+  // Currently using Verlet integration method
+  void update(double drag, double dt) {
     angle += angularVelocity * dt + angularAcceleration / 2 * pow(dt, 2);
     final a0 = angularAcceleration;
-    angularAcceleration = newAcceleration();
+    angularAcceleration = motionEquation(drag);
     angularVelocity += (angularAcceleration + a0) / 2 * dt;
   }
+
+  double motionEquation(double drag) =>
+      -G * sin(angle) / length - drag * angularVelocity;
 }
