@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:pendulum/main.dart';
 import 'package:pendulum/models/models.dart';
+
+import '../utils/const.dart';
 
 class WorkspacePainter extends CustomPainter {
   final List<Pendulum> pendulums;

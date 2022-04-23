@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:pendulum/main.dart';
 import 'package:pendulum/models/vector.dart';
 import 'dart:math';
+
+import '../utils/const.dart';
 
 class Pendulum {
   double length = 0;
